@@ -7,4 +7,11 @@ target 'MyChat' do
 
   # Pods for MyChat
 
+  #Firebase pods
+
+  pod 'Firebase'
+  pod 'Firebase/Core'
+  pod 'Firebase/Auth'
+  pod 'Firebase/Database'
+
 end

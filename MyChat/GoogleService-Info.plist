@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>96541619323-a87ge07qfgdapi6hh7gtn6p91dg3uq2m.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.96541619323-a87ge07qfgdapi6hh7gtn6p91dg3uq2m</string>
+	<key>API_KEY</key>
+	<string>AIzaSyD_XYWxavdG7evXE-fgGe7rBTqbhskqkLU</string>
+	<key>GCM_SENDER_ID</key>
+	<string>96541619323</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>co.fang.MyChat</string>
+	<key>PROJECT_ID</key>
+	<string>my-chat-48ee6</string>
+	<key>STORAGE_BUCKET</key>
+	<string>my-chat-48ee6.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:96541619323:ios:49dddb5554330e5ff51ede</string>
+	<key>DATABASE_URL</key>
+	<string>https://my-chat-48ee6.firebaseio.com</string>
+</dict>
+</plist>

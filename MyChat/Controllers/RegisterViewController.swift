@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class RegisterViewController: UIViewController {
     
@@ -130,13 +131,13 @@ class RegisterViewController: UIViewController {
         emailField.delegate = self
         passwordField.delegate = self
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Register",
-                                                            style: .done ,
-                                                            target: self,
-                                                            action: #selector(didPressRegister))
+//       navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Register",
+//                                                            style: .done ,
+//                                                            target: self,
+//                                                            action: #selector(didPressRegister))
         
         registerButton.addTarget(self,
-                              action: #selector(loginButtonPressed),
+                              action: #selector(registerButtonPressed),
                               for: .touchUpInside)
         
         //Add subview
@@ -202,8 +203,9 @@ class RegisterViewController: UIViewController {
         presentPhotoActionSheet()
     }
     
-    @objc private func loginButtonPressed() {
+    @objc private func registerButtonPressed() {
         
+        //takes care that no field is empty
         firstNameField.resignFirstResponder()
         lastNameField.resignFirstResponder()
         emailField.resignFirstResponder()
@@ -220,12 +222,45 @@ class RegisterViewController: UIViewController {
         
         //Firebase Login
         
+        //Check if email exist
+        DatabaseManager.shared.userExists(with: email) {[weak self] (exists) in
+            
+            //adding weak self to kill retention cycle
+            guard let strongSelf = self else {
+                return
+            }
+            
+            guard !exists else {
+                //user exist
+                strongSelf.alertUserLoginError(message: "User already exists with same email!")
+                return
+            }
+            
+            FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password) {(authResult, error) in
+                
+                guard authResult != nil, error == nil else{
+                    print("Error occured while creating user!")
+                    return
+                }
+                
+                DatabaseManager.shared.insertUser(with: ChatAppuser(firstName: firstName,
+                                                                    lastName: lastName,
+                                                                    emailId: email))
+                
+                //dissmiss current view
+                strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+                
+                
+            }
+            
+        }
+        
     }
     
-    func alertUserLoginError()  {
+    func alertUserLoginError(message: String = "Please enter correct info to create new account!")  {
         
         let alert = UIAlertController(title: "Oops!",
-                                      message: "Please enter correct info to create new account!",
+                                      message: message,
                                       preferredStyle: .alert)
         //adding action to dissmiss
         alert.addAction(UIAlertAction(title: "Dismiss",
@@ -234,12 +269,12 @@ class RegisterViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    @objc private func didPressRegister() {
-        
-        let vc = RegisterViewController()
-        vc.title = "Create Account"
-        navigationController?.pushViewController(vc, animated: true)
-    }
+//    @objc private func didPressRegister() {
+//        
+//        let vc = RegisterViewController()
+//        vc.title = "Create Account"
+//        navigationController?.pushViewController(vc, animated: true)
+//    }
     
 }
 
@@ -253,7 +288,7 @@ extension RegisterViewController: UITextFieldDelegate {
             passwordField.becomeFirstResponder()
         }
         else if textField == passwordField {
-            loginButtonPressed()
+            registerButtonPressed()
         }
         
         return true
