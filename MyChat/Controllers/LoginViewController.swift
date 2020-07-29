@@ -68,7 +68,7 @@ class LoginViewController: UIViewController {
         
         let button = UIButton()
         button.setTitle("Login", for: .normal)
-        button.backgroundColor = .link
+        button.backgroundColor = .systemGreen
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 12
         button.layer.masksToBounds = true
@@ -131,6 +131,9 @@ class LoginViewController: UIViewController {
     }
     
     @objc private func loginButtonPressed() {
+        
+        emailField.resignFirstResponder()
+        passwordField.resignFirstResponder()
         
         guard let email = emailField.text, let password = passwordField.text,
             !email.isEmpty, !password.isEmpty, password.count >= 6 else {
