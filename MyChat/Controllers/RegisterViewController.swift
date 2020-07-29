@@ -9,23 +9,173 @@
 import UIKit
 
 class RegisterViewController: UIViewController {
-
+    
+    private let scrollView: UIScrollView = {
+        
+        let scrollView = UIScrollView()
+        scrollView.clipsToBounds = true
+        return scrollView
+    }()
+    
+    private let imageView: UIImageView = {
+        
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "AppLogo")
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    private let emailField: UITextField = {
+        
+        let emailField = UITextField()
+        emailField.autocapitalizationType = .none
+        emailField.autocorrectionType = .no
+        emailField.returnKeyType = .continue
+        emailField.layer.cornerRadius = 12
+        emailField.layer.borderWidth = 1
+        emailField.layer.borderColor = UIColor.lightGray.cgColor
+        emailField.placeholder = "Email Address"
+        
+        //to add buffer on the left side
+        emailField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0))
+        emailField.leftViewMode = .always
+        
+        emailField.backgroundColor = UIColor.white
+        return emailField
+    }()
+    
+    private let passwordField: UITextField = {
+        
+        let passwordField = UITextField()
+        passwordField.autocapitalizationType = .none
+        passwordField.autocorrectionType = .no
+        passwordField.returnKeyType = .done
+        passwordField.layer.cornerRadius = 12
+        passwordField.layer.borderWidth = 1
+        passwordField.layer.borderColor = UIColor.lightGray.cgColor
+        passwordField.placeholder = "Password"
+        passwordField.isSecureTextEntry = true
+        
+        //to add buffer on the left side
+        passwordField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0))
+        passwordField.leftViewMode = .always
+        
+        passwordField.backgroundColor = UIColor.white
+        return passwordField
+    }()
+    
+    private let loginButton: UIButton = {
+        
+        let button = UIButton()
+        button.setTitle("Login", for: .normal)
+        button.backgroundColor = .link
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 12
+        button.layer.masksToBounds = true
+        button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+        
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
         
+        view.backgroundColor = UIColor.white
+        title = "Log In"
+        
+        emailField.delegate = self
+        passwordField.delegate = self
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Register",
+                                                            style: .done ,
+                                                            target: self,
+                                                            action: #selector(didPressRegister))
+        
+        loginButton.addTarget(self,
+                              action: #selector(loginButtonPressed),
+                              for: .touchUpInside)
+        
+        //Add subview
+        view.addSubview(scrollView)
+        scrollView.addSubview(imageView)
+        scrollView.addSubview(emailField)
+        scrollView.addSubview(passwordField)
+        scrollView.addSubview(loginButton)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        scrollView.frame = view.bounds
+        
+        let size = scrollView.width / 3
+        imageView.frame = CGRect(x: (scrollView.width - size) / 2,
+                                 y: 20,
+                                 width: size,
+                                 height: size)
+        
+        emailField.frame = CGRect(x: 30,
+                                  y: imageView.bottom + 20,
+                                  width: scrollView.width - 60,
+                                  height: 52)
+        
+        passwordField.frame = CGRect(x: 30,
+                                     y: emailField.bottom + 20,
+                                     width: scrollView.width - 60,
+                                     height: 52)
+        
+        loginButton.frame = CGRect(x: 30,
+                                   y: passwordField.bottom + 20,
+                                   width: scrollView.width - 60,
+                                   height: 52)
         
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    @objc private func loginButtonPressed() {
+        
+        guard let email = emailField.text, let password = passwordField.text,
+            !email.isEmpty, !password.isEmpty, password.count >= 6 else {
+                alertUserLoginError()
+                return
+        }
+        
+        //Firebase Login
+        
     }
-    */
+    
+    func alertUserLoginError()  {
+        
+        let alert = UIAlertController(title: "Oops!",
+                                      message: "Please enter correct info!",
+                                      preferredStyle: .alert)
+        //adding action to dissmiss
+        alert.addAction(UIAlertAction(title: "Dismiss",
+                                      style: .cancel, handler: nil))
+        
+        present(alert, animated: true)
+    }
+    
+    @objc private func didPressRegister() {
+        
+        let vc = RegisterViewController()
+        vc.title = "Create Account"
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+}
 
+
+extension RegisterViewController: UITextFieldDelegate {
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        
+        if(textField == emailField) {
+            //we need to check password
+            passwordField.becomeFirstResponder()
+        }
+        else if textField == passwordField {
+            loginButtonPressed()
+        }
+        
+        return true
+    }
 }
