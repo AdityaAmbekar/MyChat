@@ -8,8 +8,11 @@
 
 import UIKit
 import FirebaseAuth
+import JGProgressHUD
 
 class RegisterViewController: UIViewController {
+    
+    private let spinner = JGProgressHUD(style: .dark)
     
     private let scrollView: UIScrollView = {
         
@@ -220,6 +223,7 @@ class RegisterViewController: UIViewController {
                 return
         }
         
+        spinner.show(in: view)
         //Firebase Login
         
         //Check if email exist
@@ -228,6 +232,10 @@ class RegisterViewController: UIViewController {
             //adding weak self to kill retention cycle
             guard let strongSelf = self else {
                 return
+            }
+            
+            DispatchQueue.main.async {
+                strongSelf.spinner.dismiss()
             }
             
             guard !exists else {
