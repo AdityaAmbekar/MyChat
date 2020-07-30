@@ -49,6 +49,8 @@ class NewConversationViewController: UIViewController {
                                                             style: .done,
                                                             target: self,
                                                             action: #selector(dismissSelf))
+        
+        searchBar.becomeFirstResponder()
     }
     
     @objc private func dismissSelf() {
