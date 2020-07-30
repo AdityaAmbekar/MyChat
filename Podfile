@@ -19,5 +19,11 @@ target 'MyChat' do
 
   #Google SDK
   pod 'GoogleSignIn'
+
+  #Other dependencies for UI
+  pod 'MessageKit'
+  pod 'JGProgressHUD'
+  pod 'RealmSwift'
+  pod 'SDWebImage'
     
 end
