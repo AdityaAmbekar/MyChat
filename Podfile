@@ -14,4 +14,10 @@ target 'MyChat' do
   pod 'Firebase/Auth'
   pod 'Firebase/Database'
 
+  #Facebook SDK
+  pod 'FBSDKLoginKit'
+
+  #Google SDK
+  pod 'GoogleSignIn'
+    
 end

@@ -24,7 +24,11 @@ extension DatabaseManager {
     
     public func userExists(with email: String, completion: @escaping ((Bool) -> Void)) {
         
-        database.child(email).observeSingleEvent(of: .value) { (snapshot) in
+        //gave error for email containing special char so like '.', '#'
+        var safeEmail = email.replacingOccurrences(of: ".", with: "-")
+        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
+        
+        database.child(safeEmail).observeSingleEvent(of: .value) { (snapshot) in
             
             guard snapshot.value as? String != nil else {
                 completion(false)
@@ -37,7 +41,7 @@ extension DatabaseManager {
     
     public func insertUser(with user: ChatAppuser) {
         
-        database.child(user.emailId).setValue([
+        database.child(user.safeEmail).setValue([
             "first_name": user.firstName,
             "last_name": user.lastName
         ])
@@ -50,5 +54,13 @@ struct ChatAppuser {
     let firstName: String
     let lastName: String
     let emailId: String
+    
+    var safeEmail: String {
+        
+        var safeEmail = emailId.replacingOccurrences(of: ".", with: "-")
+        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
+        return safeEmail
+    }
+    
 //    let profilePic: String
 }
