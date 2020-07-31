@@ -115,7 +115,7 @@ extension DatabaseManager {
     
     public func getAllUser(completion: @escaping (Result<[[String: String]], Error>) -> Void) {
         
-        database.child("user").observeSingleEvent(of: .value, with: { snapShot in
+        database.child("users").observeSingleEvent(of: .value, with: { snapShot in
             
             guard let value = snapShot.value as? [[String: String]] else {
                 completion(.failure(DataBaseErrors.failedToFetch))
