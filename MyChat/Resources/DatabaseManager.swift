@@ -15,6 +15,13 @@ final class DatabaseManager {
     
     private let database = Database.database().reference()
     
+    static func safeEmail(emailId: String) -> (String) {
+        
+        var safeEmail = emailId.replacingOccurrences(of: ".", with: "-")
+        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
+        return safeEmail
+        
+    }
     
 }
 
@@ -52,10 +59,80 @@ extension DatabaseManager {
                 return
             }
             
-            completion(true)
+            //doing this thing just to lessen the database calls
+            //something like graphql implementation
+            /*
+                users => [
+                    [
+                        name:
+                        email:
+                    ],
+                    [
+                        ...
+                    ]
+                ]
+             */
+            
+            self.database.child("users").observeSingleEvent(of: .value) { (snapShot) in
+                
+                if var usersCollection = snapShot.value as? [[String: String]] {
+                    //append to user dictionary
+                    let newElement = [
+                        "name": user.firstName + " " + user.lastName,
+                        "email": user.safeEmail
+                    ]
+                    usersCollection.append(newElement)
+                    
+                    self.database.child("users").setValue(usersCollection, withCompletionBlock: {error, _ in
+                        guard  error == nil  else {
+                            completion(false)
+                            return
+                        }
+                        completion(true)
+                    })
+                }
+                else {
+                    //create that array
+                    let newCollection: [[String: String]] = [
+                        
+                        [
+                            "name": user.firstName + " " + user.lastName,
+                            "email": user.safeEmail
+                        ]
+                    ]
+                    
+                    self.database.child("users").setValue(newCollection, withCompletionBlock: {error, _ in
+                        guard  error == nil  else {
+                            completion(false)
+                            return
+                        }
+                        completion(true)
+                    })
+                }
+            }
         })
     }
+    
+    public func getAllUser(completion: @escaping (Result<[[String: String]], Error>) -> Void) {
+        
+        database.child("user").observeSingleEvent(of: .value, with: { snapShot in
+            
+            guard let value = snapShot.value as? [[String: String]] else {
+                completion(.failure(DataBaseErrors.failedToFetch))
+                return
+            }
+            
+            completion(.success(value))
+        })
+    }
+    
+    public enum DataBaseErrors: Error {
+        
+        case failedToFetch
+    }
 }
+
+
 
 
 struct ChatAppuser {

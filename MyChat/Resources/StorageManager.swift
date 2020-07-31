@@ -44,9 +44,26 @@ final class StorageManager {
         })
     }
     
+    //downloadUrl based on path to fill the profile image in view
+    public func downloadURLForPath(for path: String, completion: @escaping (Result<URL, Error>) -> Void) {
+        
+        let reference = storage.child(path)
+        
+        reference.downloadURL { (url, error) in
+            
+            guard let url = url, error == nil else{
+                completion(.failure(StorageErrors.failedToGetDownloadURL))
+                print("Failed to download image for profile view")
+                return
+            }
+            completion(.success(url))
+        }
+    }
+    
     //defining custom errors
     public enum StorageErrors: Error {
         case failedToUpload
         case failedToDownloadURL
+        case failedToGetDownloadURL
     }
 }

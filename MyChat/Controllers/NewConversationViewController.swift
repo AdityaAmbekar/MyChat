@@ -11,7 +11,12 @@ import JGProgressHUD
 
 class NewConversationViewController: UIViewController {
 
-    private let spinner =  JGProgressHUD()
+    private let spinner =  JGProgressHUD(style: .dark)
+    
+    //an array which holds the users collection in firebase storage
+    private var users = [[String: String]]()
+    private var results = [[String: String]]()
+    private var hasFetched = false
     
     private let searchBar: UISearchBar = {
         
@@ -42,6 +47,13 @@ class NewConversationViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        view.addSubview(noResultsLabel)
+        view.addSubview(tableView)
+        
+        tableView.delegate = self
+        tableView.dataSource = self
+        
         searchBar.delegate = self
         view.backgroundColor = .white
         navigationController?.navigationBar.topItem?.titleView = searchBar
@@ -60,11 +72,99 @@ class NewConversationViewController: UIViewController {
 
 }
 
+extension NewConversationViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        results.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        cell.textLabel?.text = results[indexPath.row]["name"]
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+        //start convo
+    }
+    
+}
+
 
 extension NewConversationViewController: UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         
+        guard let text = searchBar.text, !text.isEmpty, !text.replacingOccurrences(of: " ", with: "").isEmpty else {
+            
+            return
+        }
         
+        results.removeAll()
+        spinner.show(in: view)
+        
+        self.serachUsers(query: text)
+    }
+    
+    func serachUsers(query: String) {
+        
+        //check if array has firebase results
+        if hasFetched {
+            //if it does filter
+            filterUsers(with: query)
+        }
+        else {
+            //if not, fetch from db and then filter
+            DatabaseManager.shared.getAllUser {[weak self] (result) in
+                
+                switch result {
+                case .success(let userCollection):
+                    self?.hasFetched = true
+                    self?.users = userCollection
+                    self?.filterUsers(with: query)
+                case .failure(let error):
+                    print("Failed to get users \(error)")
+                }
+                
+            }
+        }
+    }
+    
+    func filterUsers(with term: String) {
+        guard hasFetched else {
+            return
+        }
+        
+        self.spinner.dismiss()
+        
+        //update ui
+        let results: [[String: String]] = self.users.filter({
+            guard let name = $0["name"]?.lowercased() else {
+                
+                return false
+            }
+            
+            return name.hasPrefix(term)
+        })
+        
+        self.results = results
+        
+        
+        //update ui
+        updateUI()
+    }
+    
+    func updateUI() {
+        
+        if results.isEmpty {
+            self.noResultsLabel.isHidden = false
+            self.tableView.isHidden = true
+        }
+        else {
+            self.noResultsLabel.isHidden = true
+            self.tableView.isHidden = false
+            tableView.reloadData()
+        }
     }
 }

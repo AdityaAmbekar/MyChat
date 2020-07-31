@@ -234,6 +234,9 @@ class LoginViewController: UIViewController {
             let user = result.user
             print("User logged in \(user)")
             
+            //save user deafault to cache
+            UserDefaults.standard.set(email, forKey: "email")
+            
             //need to dismiss this view
             strongSelf.navigationController?.dismiss(animated: true, completion: nil)
         }
@@ -291,6 +294,8 @@ extension LoginViewController:  LoginButtonDelegate {
             return
         }
         
+        
+        
         //need to get those credentials to add into db
         let facebookRequest = FBSDKLoginKit.GraphRequest(graphPath: "me",
                                                          parameters: ["fields": "email,  first_name, last_name, picture.type(large)" ],
@@ -318,12 +323,12 @@ extension LoginViewController:  LoginButtonDelegate {
             }
 
             
+            //save user deafault to cache
+            UserDefaults.standard.set(email, forKey: "email")
+            
             DatabaseManager.shared.userExists(with: email) { (exists) in
                 
                 if !exists  {
-                    
-                    
-                    
                     let chatUser = ChatAppuser(firstName: firstName,
                                                lastName: lastName,
                                                emailId: email)
@@ -380,6 +385,7 @@ extension LoginViewController:  LoginButtonDelegate {
                 }
                 
                 print("Logged in via FB!")
+                
                 //need to dismiss this view
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
                 
