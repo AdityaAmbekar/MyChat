@@ -63,8 +63,9 @@ class ChatViewController: MessagesViewController {
     
     public var isNewConversation = false
     public let otherUserEmail: String
+    private let conversationId: String?
     
-    private let messages = [Message]()
+    private var messages = [Message]()
     
     private var selfSender: Sender?  {
         
@@ -72,16 +73,20 @@ class ChatViewController: MessagesViewController {
             return nil
         }
         
+        let safeEmail = DatabaseManager.safeEmail(emailId: email)
+        
         return Sender(photoUrl: "",
-                      senderId: email,
-                      displayName: "Aditya")
-        
-        
+                      senderId: safeEmail,
+                      displayName: "Me")
     }
-    init(email:String) {
+    
+    init(email:String, id: String?) {
+        self.conversationId = id
         self.otherUserEmail = email
         super.init(nibName: nil, bundle: nil)
-        
+        if let conversationId = conversationId {
+            listenForMessages(id: conversationId)
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -91,11 +96,34 @@ class ChatViewController: MessagesViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
         messageInputBar.delegate = self
+    }
+    
+    private func listenForMessages(id: String) {
+        
+        DatabaseManager.shared.getAllMessagesForConversations(with: id) {[weak self] (result) in
+            
+            switch result {
+            case .success(let messages):
+                guard !messages.isEmpty else {
+                    return
+                }
+                //need to update the messages
+                self?.messages = messages
+                
+                DispatchQueue.main.async {
+                    //if new message comes we dont want to scroll all the way up so this
+                    self?.messagesCollectionView.reloadDataAndKeepOffset()
+                }
+                
+                
+            case .failure(let error):
+                print("Failed to get messages: \(error)")
+            }
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -123,7 +151,7 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
                                   messageId: messageId,
                                   sentDate: Date(),
                                   kind: .text(text))
-            DatabaseManager.shared.createNewConversations(with: otherUserEmail, firstMessage: message) { (success) in
+            DatabaseManager.shared.createNewConversations(with: otherUserEmail,name: self.title ?? "User",firstMessage: message) { (success) in
                 
                 if success {
                     print("message sent")
@@ -161,7 +189,6 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
             return sender
         }
         fatalError("Slef Senderis nil email should be cached")
-//        return Sender(photoUrl: "", senderId: "", displayName: "")
     }
     
     func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageType {

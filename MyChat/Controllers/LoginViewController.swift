@@ -293,12 +293,10 @@ extension LoginViewController:  LoginButtonDelegate {
             print("User failed to login with Facebook!")
             return
         }
-        
-        
-        
+ 
         //need to get those credentials to add into db
         let facebookRequest = FBSDKLoginKit.GraphRequest(graphPath: "me",
-                                                         parameters: ["fields": "email,  first_name, last_name, picture.type(large)" ],
+                                                         parameters: ["fields": "email, first_name, last_name, picture.type(large)"],
                                                          tokenString: token,
                                                          version: nil,
                                                          httpMethod: .get)

@@ -10,16 +10,33 @@ import UIKit
 import FirebaseAuth
 import JGProgressHUD
 
+struct Conversation {
+    let id: String
+    let name: String
+    let otherUserEmail: String
+    let latestMessage: LatestMessage
+}
+
+struct LatestMessage {
+    
+    let date: String
+    let text: String
+    let isRead: Bool
+    
+}
+
 class ConversationsViewController: UIViewController {
     
     private let spinner = JGProgressHUD(style: .dark)
+    
+    private var conversations = [Conversation]()
 
     private let tableView: UITableView = {
 
         let table = UITableView()
         table.isHidden = true
-        table.register(UITableViewCell.self,
-                       forCellReuseIdentifier: "cell")
+        table.register(ConversationTableViewCell.self,
+                       forCellReuseIdentifier: ConversationTableViewCell.indentifier)
         return table
     }()
     
@@ -44,7 +61,37 @@ class ConversationsViewController: UIViewController {
         view.addSubview(noConversationsLabel)
         setupTableView()
         fetchConversations()
+        startListeningForConversations()
+    }
+    
+    private func startListeningForConversations() {
         
+        guard let emailId = UserDefaults.standard.value(forKey: "email") as? String else {
+            return
+        }
+        
+        print("Starting convo fetch... ")
+        
+        let safeEmail = DatabaseManager.safeEmail(emailId: emailId)
+        DatabaseManager.shared.getAllConversations(for: safeEmail) {[weak self] (result) in
+            
+            switch result {
+                
+            case .success(let conversation):
+                guard !conversation.isEmpty else {
+                    return
+                }
+                
+                self?.conversations = conversation
+                
+                DispatchQueue.main.async {
+                    self?.tableView.reloadData()
+                }
+                
+            case .failure(let error):
+                print("Failed to get convo \(error)")
+            }
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -77,7 +124,7 @@ class ConversationsViewController: UIViewController {
             return
         }
         
-        let vc = ChatViewController(email: email)
+        let vc = ChatViewController(email: email, id: nil)
         vc.isNewConversation = true
         vc.title = name
         vc.navigationItem.largeTitleDisplayMode = .never
@@ -113,24 +160,30 @@ class ConversationsViewController: UIViewController {
 extension ConversationsViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return conversations.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = "hello world"
-        cell.accessoryType = .disclosureIndicator
+        let cell = tableView.dequeueReusableCell(withIdentifier: ConversationTableViewCell.indentifier,
+                                                 for: indexPath) as! ConversationTableViewCell
+        let model = conversations[ indexPath.row ]
+        cell.configure(with: model)
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         tableView.deselectRow(at: indexPath, animated: true)
-        let vc = ChatViewController(email:  "")
-        vc.title = "Aditya"
+        let model = conversations[ indexPath.row ]
+        let vc = ChatViewController(email: model.otherUserEmail, id: model.id)
+        vc.title = model.name
         vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 120
     }
     
 }
