@@ -25,10 +25,26 @@ final class DatabaseManager {
     
 }
 
+extension DatabaseManager {
+    
+    public func getData(for path: String, completion: @escaping (Result<Any,  Error>) -> Void) {
+        
+        self.database.child("\(path)").observeSingleEvent(of: .value) { (snapShot) in
+            
+            guard let value = snapShot.value else {
+                completion(.failure(DataBaseErrors.failedToFetch))
+                return
+            }
+            
+            completion(.success(value))
+        }
+    }
+}
+
 //MARK: - Account Management
 
 extension DatabaseManager {
-    
+
     public func userExists(with email: String, completion: @escaping ((Bool) -> Void)) {
         
         //gave error for email containing special char so like '.', '#'
@@ -168,13 +184,14 @@ extension DatabaseManager {
     //creates new conversation
     public func createNewConversations(with otherUserEmail: String, name: String, firstMessage: Message, completion: @escaping (Bool) -> Void) {
         
-        guard  let currentEmail = UserDefaults.standard.value(forKey: "email") as? String else {
-            return
+        guard  let currentEmail = UserDefaults.standard.value(forKey: "email") as? String,
+            let currentUserName = UserDefaults.standard.value(forKey: "name") as? String  else {
+                return
         }
         
         let safeEmail = DatabaseManager.safeEmail(emailId: currentEmail)
         let ref = database.child("\(safeEmail)")
-        ref.observeSingleEvent(of: .value,with: {snapShot in
+        ref.observeSingleEvent(of: .value,with: { [weak self] snapShot in
             
             guard var userNode = snapShot.value as? [String: Any] else{
                 completion(false)
@@ -223,6 +240,33 @@ extension DatabaseManager {
                 ]
             ]
             
+            let recipientNewConversationData: [String: Any] = [
+                
+                "id": conversationId,
+                "other_user_email": safeEmail,
+                "name": currentUserName,
+                "latest_message": [
+                    "date": dateString,
+                    "is_read": false,
+                    "message": message
+                ]
+            ]
+            
+            //update other users convo
+            self?.database.child("\(otherUserEmail)/conversations").observeSingleEvent(of: .value) {[weak self] (snapShot) in
+                
+                if var conversations = snapShot.value as? [[String: Any]] {
+                    //append
+                    conversations.append(recipientNewConversationData)
+                    self?.database.child("\(otherUserEmail)/conversations").setValue([conversationId])
+                }
+                else {
+                    //create new convo
+                    self?.database.child("\(otherUserEmail)/conversations").setValue([recipientNewConversationData])
+                }
+            }
+            
+            //update current users convo
             if var conversations = userNode["conversations"] as? [[String: Any]] {
                 //conversation array exists
                 
@@ -417,9 +461,21 @@ extension DatabaseManager {
     }
     
     //sends a message wit target convo
-    public func sendMessage(to conversation: String, message: Message, completion: @escaping (Bool) -> Void) {
+    public func sendMessage(to conversationId: String, message: Message, completion: @escaping (Bool) -> Void) {
         
+        //add new message to messages
+        //update sender latest message
+        //update recipient message
         
+        self.database.child("\(conversation)/messages").observeSingleEvent(of: .value) { (snapShot) in
+            
+            guard var currentMessages = snapShot.value as? [[String: Any]] else {
+                completion(false)
+                return
+            }
+            //append new message
+            
+        }
     }
     
 }

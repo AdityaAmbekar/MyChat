@@ -84,9 +84,6 @@ class ChatViewController: MessagesViewController {
         self.conversationId = id
         self.otherUserEmail = email
         super.init(nibName: nil, bundle: nil)
-        if let conversationId = conversationId {
-            listenForMessages(id: conversationId)
-        }
     }
     
     required init?(coder: NSCoder) {
@@ -102,7 +99,7 @@ class ChatViewController: MessagesViewController {
         messageInputBar.delegate = self
     }
     
-    private func listenForMessages(id: String) {
+    private func listenForMessages(id: String, shouldScrollToBottom: Bool) {
         
         DatabaseManager.shared.getAllMessagesForConversations(with: id) {[weak self] (result) in
             
@@ -117,6 +114,10 @@ class ChatViewController: MessagesViewController {
                 DispatchQueue.main.async {
                     //if new message comes we dont want to scroll all the way up so this
                     self?.messagesCollectionView.reloadDataAndKeepOffset()
+                    
+                    if shouldScrollToBottom {
+                        self?.messagesCollectionView.scrollToBottom()
+                    }
                 }
                 
                 
@@ -129,6 +130,10 @@ class ChatViewController: MessagesViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
          messageInputBar.inputTextView.becomeFirstResponder()
+        
+        if let conversationId = conversationId {
+            listenForMessages(id: conversationId, shouldScrollToBottom: true)
+        }
         
     }
 
@@ -144,17 +149,21 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
             return
         }
         
+        let message = Message(sender: selfSender,
+                              messageId: messageId,
+                              sentDate: Date(),
+                              kind: .text(text))
+        
         //Send message
         if isNewConversation {
             //create convo in database
-            let message = Message(sender: selfSender,
-                                  messageId: messageId,
-                                  sentDate: Date(),
-                                  kind: .text(text))
-            DatabaseManager.shared.createNewConversations(with: otherUserEmail,name: self.title ?? "User",firstMessage: message) { (success) in
+            DatabaseManager.shared.createNewConversations(with: otherUserEmail,
+                                                          name: self.title ?? "User",
+                                                          firstMessage: message) {[weak self] (success) in
                 
                 if success {
                     print("message sent")
+                    self?.isNewConversation = false
                 }
                 else {
                     print("failed to send message")
@@ -163,6 +172,19 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         }
         else {
             //append convo in database
+            
+            guard  let conversationId = conversationId else {
+                return
+            }
+            DatabaseManager.shared.sendMessage( to: conversationId, message: message) { (success) in
+                
+                if success {
+                    print("message sent")
+                }
+                else {
+                   print("Failed to sent message")
+                }
+            }
         }
     }
     

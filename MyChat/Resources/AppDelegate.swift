@@ -69,6 +69,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         
         //save user deafault to cache
         UserDefaults.standard.set(email, forKey: "email")
+        UserDefaults.standard.set("\(firstName) \(lastName)", forKey: "name")
         
         DatabaseManager.shared.userExists(with: email) { (exists) in
             
