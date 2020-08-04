@@ -8,6 +8,7 @@
 
 import Foundation
 import FirebaseDatabase
+import MessageKit
 
 final class DatabaseManager {
     
@@ -311,13 +312,13 @@ extension DatabaseManager {
     
     private func finishCreatingConversations(name: String, conversationId: String, firstMessage:Message, completion: @escaping (Bool) -> Void) {
         
-//
-//        "id" :String
-//        "type":
-//        "contents":
-//        "date":
-//        "sender_email"
-//        "isRead":
+        //
+        //        "id" :String
+        //        "type":
+        //        "contents":
+        //        "date":
+        //        "sender_email"
+        //        "isRead":
         
         let messageDate = firstMessage.sentDate
         let dateString = ChatViewController.dateFormatter.string(from: messageDate)
@@ -352,9 +353,9 @@ extension DatabaseManager {
         }
         
         let currentUserEmail = DatabaseManager.safeEmail(emailId: myEmail)
-
-        let message: [String: Any] = [
         
+        let message: [String: Any] = [
+            
             "id": firstMessage.messageId,
             "type": firstMessage.kind.messageKindString,
             "content": content,
@@ -444,6 +445,43 @@ extension DatabaseManager {
                         return nil
                 }
                 
+                var kind: MessageKind?
+                
+                if type == "photo" {
+                    
+                    guard let imageUrl = URL(string: content),
+                        let placeholder = UIImage(systemName: "plus") else {
+                            return nil
+                    }
+                    
+                    let media = Media(url: imageUrl,
+                                      image: nil,
+                                      placeholderImage: placeholder,
+                                      size: CGSize(width: 300, height: 300))
+                    kind = .photo(media)
+                }
+                else  if type == "video" {
+                    
+                    guard let videoUrl = URL(string: content),
+                        let placeholder = UIImage(systemName: "plus") else {
+                            return nil
+                    }
+                    //need to add thumbnail as placeholder need to see that
+                    let media = Media(url: videoUrl,
+                                      image: nil,
+                                      placeholderImage: placeholder,
+                                      size: CGSize(width: 300, height: 300))
+                    kind = .video(media)
+                }
+                    
+                else {
+                    kind = .text(content)
+                }
+                
+                guard let finalKind = kind else {
+                    return nil
+                }
+                
                 let sender = Sender(photoUrl: "",
                                     senderId: senderEmail,
                                     displayName: name)
@@ -451,7 +489,7 @@ extension DatabaseManager {
                 return Message(sender: sender ,
                                messageId: messageId,
                                sentDate: date,
-                               kind: .text(content))
+                               kind: finalKind)
             })
             
             //didnt add completion here :(
@@ -473,7 +511,6 @@ extension DatabaseManager {
         }
         
         let currentEmail = DatabaseManager.safeEmail(emailId: myEmail)
-        print("failed here 1")
         database.child("\(conversationId)/messages").observeSingleEvent(of: .value) {[weak self] (snapShot) in
             
             guard let strongSelf = self else {
@@ -495,11 +532,18 @@ extension DatabaseManager {
                 
             case .text(let messageText):
                 content = messageText
+                break
             case .attributedText(_):
                 break
-            case .photo(_):
+            case .photo(let mediaItem):
+                if let targetUrlString = mediaItem.url?.absoluteString {
+                    content = targetUrlString
+                }
                 break
-            case .video(_):
+            case .video(let mediaItem):
+                if let targetUrlString = mediaItem.url?.absoluteString {
+                    content = targetUrlString
+                }
                 break
             case .location(_):
                 break
@@ -533,14 +577,12 @@ extension DatabaseManager {
             
             currentMessages.append(newMessage);
             
-            print("failed here 2")
             strongSelf.database.child("\(conversationId)/messages").setValue(currentMessages) { (error , _) in
                 
                 guard error == nil else {
                     completion(false)
                     return
                 }
-                print("failed here 3")
                 strongSelf.database.child("\(currentEmail)/conversations").observeSingleEvent(of: .value) { (snapShot) in
                     
                     guard var currentUserConversation = snapShot.value as? [[String: Any]] else {
@@ -573,7 +615,6 @@ extension DatabaseManager {
                         return
                     }
                     currentUserConversation[position] = finalConversation
-                    print("failed here 4")
                     
                     strongSelf.database.child("\(currentUserEmail)/conversations").setValue(currentUserConversation) { (error, _) in
                         
@@ -582,7 +623,6 @@ extension DatabaseManager {
                             return
                         }
                         
-                        print("failed here 5")
                         //update latest message in receipient convo as well
                         strongSelf.database.child("\(otherUserEmail)/conversations").observeSingleEvent(of: .value) { (snapShot) in
                             
@@ -616,7 +656,6 @@ extension DatabaseManager {
                                 return
                             }
                             otherUserConversation[position] = finalConversation
-                            print("failed here 6")
                             strongSelf.database.child("\(otherUserEmail)/conversations").setValue(otherUserConversation) { (error, _) in
                                 
                                 guard error == nil else{
