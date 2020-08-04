@@ -110,19 +110,16 @@ class ConversationsViewController: UIViewController {
     @objc private func composeButtonPressed() {
         
         let vc = NewConversationViewController()
-        vc.completion = {[weak self] result in
-            
+        vc.completion = { [weak self] result in
             self?.createNewconversation(result: result)
         }
         let navVc = UINavigationController(rootViewController: vc)
         present(navVc, animated: true)
     }
     
-    private func createNewconversation(result: [String: String]) {
+    private func createNewconversation(result: SearchResult) {
         
-        guard let name = result["name"], let email = result["email"] else {
-            return
-        }
+        let name = result.name, email = result.email
         
         let vc = ChatViewController(email: email, id: nil)
         vc.isNewConversation = true

@@ -495,7 +495,6 @@ extension ChatViewController: MessageCellDelegate {
             }
             let vc = AVPlayerViewController()
             vc.player = AVPlayer(url: videoUrl)
-            vc.aut
             present(vc, animated: true)
         default:
             break
