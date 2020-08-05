@@ -49,12 +49,11 @@ extension DatabaseManager {
     public func userExists(with email: String, completion: @escaping ((Bool) -> Void)) {
         
         //gave error for email containing special char so like '.', '#'
-        var safeEmail = email.replacingOccurrences(of: ".", with: "-")
-        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
+        let safeEmail = DatabaseManager.safeEmail(emailId: email)
         
         database.child(safeEmail).observeSingleEvent(of: .value) { (snapshot) in
             
-            guard snapshot.value as? String != nil else {
+            guard snapshot.value as? [String: Any] != nil else {
                 completion(false)
                 return
             }
@@ -259,7 +258,7 @@ extension DatabaseManager {
                 if var conversations = snapShot.value as? [[String: Any]] {
                     //append
                     conversations.append(recipientNewConversationData)
-                    self?.database.child("\(otherUserEmail)/conversations").setValue([conversationId])
+                    self?.database.child("\(otherUserEmail)/conversations").setValue(conversations)
                 }
                 else {
                     //create new convo
