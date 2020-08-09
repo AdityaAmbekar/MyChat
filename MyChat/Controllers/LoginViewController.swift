@@ -46,7 +46,7 @@ class LoginViewController: UIViewController {
         emailField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0))
         emailField.leftViewMode = .always
         
-        emailField.backgroundColor = UIColor.white
+        emailField.backgroundColor = .secondarySystemBackground
         return emailField
     }()
     
@@ -66,7 +66,7 @@ class LoginViewController: UIViewController {
         passwordField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0))
         passwordField.leftViewMode = .always
         
-        passwordField.backgroundColor = UIColor.white
+        passwordField.backgroundColor = .secondarySystemBackground
         return passwordField
     }()
     
@@ -94,7 +94,7 @@ class LoginViewController: UIViewController {
         
         let label = UILabel()
         label.text = "--OR--"
-        label.textColor = .black
+        label.textColor = .systemGray
         label.textAlignment = .center
         label.font = UIFont.boldSystemFont(ofSize: 16.0)
         return label
@@ -119,7 +119,7 @@ class LoginViewController: UIViewController {
                                                                 
         }
         
-        view.backgroundColor = UIColor.white
+        view.backgroundColor = .systemBackground
         title = "Log In"
         
         emailField.delegate = self

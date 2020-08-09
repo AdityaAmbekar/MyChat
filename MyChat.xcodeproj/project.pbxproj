@@ -18,6 +18,7 @@
 		484B6A7F24CF04C6009B0301 /* VideoPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 484B6A7E24CF04C5009B0301 /* VideoPlayerViewController.swift */; };
 		484B6A8124CF0532009B0301 /* NewConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 484B6A8024CF0532009B0301 /* NewConversationViewController.swift */; };
 		484B6A8324CF0553009B0301 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 484B6A8224CF0553009B0301 /* ProfileViewController.swift */; };
+		485BD85224E0549D00ED40B8 /* LocationPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485BD85124E0549D00ED40B8 /* LocationPickerViewController.swift */; };
 		4862780124D1B04F00656ED9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4862780024D1B04F00656ED9 /* GoogleService-Info.plist */; };
 		486A0F8D24D1C46700735E55 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486A0F8C24D1C46700735E55 /* DatabaseManager.swift */; };
 		486A0F8F24D2FF6600735E55 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486A0F8E24D2FF6600735E55 /* ChatViewController.swift */; };
@@ -43,6 +44,7 @@
 		484B6A7E24CF04C5009B0301 /* VideoPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerViewController.swift; sourceTree = "<group>"; };
 		484B6A8024CF0532009B0301 /* NewConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationViewController.swift; sourceTree = "<group>"; };
 		484B6A8224CF0553009B0301 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		485BD85124E0549D00ED40B8 /* LocationPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPickerViewController.swift; sourceTree = "<group>"; };
 		4862780024D1B04F00656ED9 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		486A0F8C24D1C46700735E55 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
 		486A0F8E24D2FF6600735E55 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 				484B6A8024CF0532009B0301 /* NewConversationViewController.swift */,
 				484B6A8224CF0553009B0301 /* ProfileViewController.swift */,
 				486A0F8E24D2FF6600735E55 /* ChatViewController.swift */,
+				485BD85124E0549D00ED40B8 /* LocationPickerViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -319,6 +322,7 @@
 				486A0F8F24D2FF6600735E55 /* ChatViewController.swift in Sources */,
 				484B6A7D24CF04B0009B0301 /* PhotoViewerViewController.swift in Sources */,
 				486A0F9124D3303400735E55 /* StorageManager.swift in Sources */,
+				485BD85224E0549D00ED40B8 /* LocationPickerViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

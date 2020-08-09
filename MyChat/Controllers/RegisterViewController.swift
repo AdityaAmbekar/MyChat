@@ -48,7 +48,7 @@ class RegisterViewController: UIViewController {
         firstNameField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0))
         firstNameField.leftViewMode = .always
         
-        firstNameField.backgroundColor = UIColor.white
+        firstNameField.backgroundColor = .secondarySystemBackground
         return firstNameField
     }()
     
@@ -67,7 +67,7 @@ class RegisterViewController: UIViewController {
         lastNameField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0))
         lastNameField.leftViewMode = .always
         
-        lastNameField.backgroundColor = UIColor.white
+        lastNameField.backgroundColor = .secondarySystemBackground
         return lastNameField
     }()
     
@@ -86,7 +86,7 @@ class RegisterViewController: UIViewController {
         emailField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0))
         emailField.leftViewMode = .always
         
-        emailField.backgroundColor = UIColor.white
+        emailField.backgroundColor = .secondarySystemBackground
         return emailField
     }()
     
@@ -106,7 +106,7 @@ class RegisterViewController: UIViewController {
         passwordField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0))
         passwordField.leftViewMode = .always
         
-        passwordField.backgroundColor = UIColor.white
+        passwordField.backgroundColor = .secondarySystemBackground
         return passwordField
     }()
     
@@ -126,7 +126,7 @@ class RegisterViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor.white
+        view.backgroundColor = .systemBackground
         title = "Register"
         
         firstNameField.delegate = self
