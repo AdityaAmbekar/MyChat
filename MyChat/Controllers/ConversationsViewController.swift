@@ -10,22 +10,8 @@ import UIKit
 import FirebaseAuth
 import JGProgressHUD
 
-struct Conversation {
-    let id: String
-    let name: String
-    let otherUserEmail: String
-    let latestMessage: LatestMessage
-}
-
-struct LatestMessage {
-    
-    let date: String
-    let text: String
-    let isRead: Bool
-    
-}
-
-class ConversationsViewController: UIViewController {
+/// Controller that handles all the list of conversations
+final class ConversationsViewController: UIViewController {
     
     private let spinner = JGProgressHUD(style: .dark)
     
@@ -257,12 +243,13 @@ extension ConversationsViewController: UITableViewDelegate, UITableViewDataSourc
         if editingStyle == .delete {
             //begin delete
             tableView.beginUpdates()
+            conversations.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .left)
             
-            DatabaseManager.shared.deleteConversation(conversationId: conversationId) {[weak self] (success) in
+            DatabaseManager.shared.deleteConversation(conversationId: conversationId) {  (success) in
                 
-                if(success) {
-                    self?.conversations.remove(at: indexPath.row)
-                    tableView.deleteRows(at: [indexPath], with: .left)
+                if(!success) {
+                    print("Failed to delete")
                 }
             }
             tableView.endUpdates()

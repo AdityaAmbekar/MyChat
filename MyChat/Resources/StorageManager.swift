@@ -15,11 +15,11 @@ final class StorageManager {
     
     private let storage = Storage.storage().reference()
     
-    //func that takes in bytes and uploads pic to firebase and return urlstring to download
-    
+    /// Takes in bytes and uploads pic to firebase and return urlstring to download
     public func uploadProfilePic(with data: Data, fileName: String, completion: @escaping (Result<String, Error>) -> Void) {
         
-        storage.child("images/\(fileName)").putData(data, metadata: nil, completion: { (metaData, error) in
+        storage.child("images/\(fileName)").putData(data, metadata: nil, completion: {[weak self] (metaData, error) in
+            
             
             guard error == nil else {
             
@@ -28,7 +28,7 @@ final class StorageManager {
                 return
             }
             
-            self.storage.child("images/\(fileName)").downloadURL { (url, error) in
+            self?.storage.child("images/\(fileName)").downloadURL { (url, error) in
                 
                 guard let url = url, error == nil else {
                     print("Failed to download profile url from firebase")
@@ -44,7 +44,7 @@ final class StorageManager {
         })
     }
     
-    //downloadUrl based on path to fill the profile image in view
+    /// DownloadUrl based on path to fill the profile image in view
     public func downloadURLForPath(for path: String, completion: @escaping (Result<URL, Error>) -> Void) {
         
         let reference = storage.child(path)
@@ -60,7 +60,7 @@ final class StorageManager {
         }
     }
     
-    //upload image that will be sent in conversation message
+    /// Upload image that will be sent in conversation message
     public func uploadMessagePhoto(with data: Data, fileName: String, completion: @escaping (Result<String, Error>) -> Void) {
         
         storage.child("messsage_images/\(fileName)").putData(data, metadata: nil, completion: {[weak self] (metaData, error) in
@@ -88,7 +88,7 @@ final class StorageManager {
         })
     }
     
-    //upload video that will be sent in conversation message
+    /// Upload video that will be sent in conversation message
     public func uploadMessageVideo(with fileUrl: URL, fileName: String, completion: @escaping (Result<String, Error>) -> Void) {
         
         storage.child("messsage_videos/\(fileName)").putFile(from: fileUrl, metadata: nil, completion: {[weak self] (metaData, error) in
@@ -116,7 +116,7 @@ final class StorageManager {
         })
     }
     
-    //defining custom errors
+    /// Defining custom errors
     public enum StorageErrors: Error {
         case failedToUpload
         case failedToDownloadURL
